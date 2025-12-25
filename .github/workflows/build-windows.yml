@@ -26,13 +26,8 @@ jobs:
 
       - name: Build EXE
         run: |
-          pyinstaller ^
-            --noconfirm ^
-            --onefile ^
-            --windowed ^
-            --name "晚晚桌宠" ^
-            --icon=assets/icon.ico ^
-            main.py
+          pyinstaller --noconfirm --onefile --windowed --name "晚晚桌宠" --add-data "assets;assets" main.py
+
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

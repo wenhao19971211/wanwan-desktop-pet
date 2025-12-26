@@ -1,14 +1,24 @@
 import sys
+import os
 from PyQt5.QtWidgets import QApplication, QLabel
 from PyQt5.QtCore import Qt, QPoint, QTimer
 from PyQt5.QtGui import QPixmap
+
+
+# ===== 解决 PyInstaller / exe 资源路径问题 =====
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS  # PyInstaller 解包目录
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
 class DesktopPet(QLabel):
     def __init__(self):
         super().__init__()
 
-        # ===== 窗口属性 =====
+        # ===== 窗口设置 =====
         self.setWindowFlags(
             Qt.FramelessWindowHint |
             Qt.WindowStaysOnTopHint |
@@ -16,28 +26,39 @@ class DesktopPet(QLabel):
         )
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        # ===== stand 动画资源 =====
+        # ===== 加载 stand 动画帧 =====
         self.stand_frames = [
-            QPixmap("assets/stand/1.png"),
-            QPixmap("assets/stand/2.png"),
-            QPixmap("assets/stand/3.png"),
-            QPixmap("assets/stand/4.png"),
+            QPixmap(resource_path("assets/stand/1.png")),
+            QPixmap(resource_path("assets/stand/2.png")),
+            QPixmap(resource_path("assets/stand/3.png")),
+            QPixmap(resource_path("assets/stand/4.png")),
         ]
         self.current_frame = 0
 
-        # 显示第一帧
-        self.setPixmap(self.stand_frames[0])
-        self.resize(self.stand_frames[0].size())
+        # ===== 显示第一帧（防止透明消失） =====
+        pix = self.stand_frames[0]
+        if pix.isNull():
+            print("ERROR: stand image load failed")
+            self.resize(200, 200)  # 防止窗口 0x0
+        else:
+            self.setPixmap(pix)
+            self.resize(pix.size())
+
+        # ===== 强制窗口出现在屏幕中央 =====
+        screen = QApplication.primaryScreen().geometry()
+        x = (screen.width() - self.width()) // 2
+        y = (screen.height() - self.height()) // 2
+        self.move(x, y)
 
         # ===== 拖拽用 =====
         self.drag_pos = QPoint()
 
-        # ===== 动画定时器 =====
+        # ===== stand 动画定时器 =====
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.play_stand_animation)
         self.timer.start(700)  # 700ms / 帧（慢节奏）
 
-    # ===== stand 动画播放 =====
+    # ===== 播放 stand 动画 =====
     def play_stand_animation(self):
         self.current_frame = (self.current_frame + 1) % len(self.stand_frames)
         self.setPixmap(self.stand_frames[self.current_frame])

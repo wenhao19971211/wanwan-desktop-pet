@@ -1,0 +1,17 @@
+# PyInstaller
+/dist/
+/build/
+*.spec
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Windows
+*.exe
+*.dll
+*.pyd
+
+# IDE
+.idea/
+.vscode/

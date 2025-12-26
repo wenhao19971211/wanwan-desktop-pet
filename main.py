@@ -58,7 +58,8 @@ class DesktopPet(QLabel):
 
         # ===== 眨眼动画 =====
         self.blink_sequence = [0, 1, 2, 3, 2, 1, 0]
-        self.blink_intervals = [0, 30, 20, 60, 20, 40, 0]
+        self.blink_intervals = [0, 20, 15, 30, 15, 20, 0]
+
         self.blink_index = 0
         self.is_blinking = False
         self.blink_repeat_total = 1   # 本轮要眨几次
@@ -112,7 +113,6 @@ class DesktopPet(QLabel):
             else:
                 # 所有眨眼完成
                 self.is_blinking = False
-                self.setPixmap(self.frames[self.idle_frame])
                 self.schedule_next_blink()
                 return
         QTimer.singleShot(interval, self.play_blink_frame)
